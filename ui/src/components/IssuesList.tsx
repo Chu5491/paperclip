@@ -1,4 +1,5 @@
 import { startTransition, useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useI18n } from "../context/I18nContext";
 import { useQuery } from "@tanstack/react-query";
 import { pickTextColorForPillBg } from "@/lib/color-contrast";
 import { useDialog } from "../context/DialogContext";
@@ -181,6 +182,7 @@ interface IssuesSearchInputProps {
 }
 
 function IssuesSearchInput({ initialValue, onValueCommitted }: IssuesSearchInputProps) {
+  const { t } = useI18n();
   const [value, setValue] = useState(initialValue);
   const onValueCommittedRef = useRef(onValueCommitted);
 
@@ -205,9 +207,9 @@ function IssuesSearchInput({ initialValue, onValueCommitted }: IssuesSearchInput
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search issues..."
+        placeholder={t("issuesList.searchIssues") + "..."}
         className="pl-7 text-xs sm:text-sm"
-        aria-label="Search issues"
+        aria-label={t("issuesList.searchIssues")}
       />
     </div>
   );
@@ -229,6 +231,7 @@ export function IssuesList({
   onSearchChange,
   onUpdateIssue,
 }: IssuesListProps) {
+  const { t } = useI18n();
   const { selectedCompanyId } = useCompany();
   const { openNewIssue } = useDialog();
   const { data: session } = useQuery({
@@ -370,7 +373,7 @@ export function IssuesList({
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Button size="sm" variant="outline" onClick={() => openNewIssue(newIssueDefaults())}>
             <Plus className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">New Issue</span>
+            <span className="hidden sm:inline">{t("issuesList.newIssue")}</span>
           </Button>
           <IssuesSearchInput
             initialValue={initialSearch ?? ""}
