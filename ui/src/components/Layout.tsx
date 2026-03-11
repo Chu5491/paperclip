@@ -21,7 +21,7 @@ import { usePanel } from "../context/PanelContext";
 import { useCompany } from "../context/CompanyContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useTheme } from "../context/ThemeContext";
-import { tWithVars, useI18n } from "../context/I18nContext";
+import { useI18n, type Locale } from "../context/I18nContext";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { useCompanyPageMemory } from "../hooks/useCompanyPageMemory";
 import { healthApi } from "../api/health";
@@ -35,6 +35,7 @@ import { cn } from "../lib/utils";
 import { NotFoundPage } from "../pages/NotFound";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const INSTANCE_SETTINGS_MEMORY_KEY = "paperclip.lastInstanceSettingsPath";
 
@@ -60,7 +61,7 @@ export function Layout() {
     setSelectedCompanyId,
   } = useCompany();
   const { theme, toggleTheme } = useTheme();
-  const { locale, toggleLocale, t } = useI18n();
+  const { locale, setLocale, t } = useI18n();
   const { companyPrefix } = useParams<{ companyPrefix: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,7 +71,11 @@ export function Layout() {
   const [mobileNavVisible, setMobileNavVisible] = useState(true);
   const [instanceSettingsTarget, setInstanceSettingsTarget] = useState<string>(() => readRememberedInstanceSettingsPath());
   const nextTheme = theme === "dark" ? "light" : "dark";
-  const switchThemeLabel = tWithVars(locale, "layout.switchTheme", { theme: t(`theme.${nextTheme}`) });
+  const switchThemeLabel = useMemo(
+    () => t("layout.switchTheme", { theme: t(`theme.${nextTheme}`) }),
+    [nextTheme, t],
+  );
+  const languageOptions: Locale[] = ["en", "ko", "ja"];
   const matchedCompany = useMemo(() => {
     if (!companyPrefix) return null;
     const requestedPrefix = companyPrefix.toUpperCase();
@@ -328,17 +333,34 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  onClick={toggleLocale}
-                  aria-label={t("layout.switchLanguage")}
-                  title={t("layout.switchLanguage")}
-                >
-                  <Languages className="h-4 w-4" />
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      aria-label={t("layout.switchLanguage")}
+                      title={t("layout.switchLanguage")}
+                    >
+                      <Languages className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-36 p-1" align="start">
+                    {languageOptions.map((lang) => (
+                      <button
+                        key={lang}
+                        className={cn(
+                          "flex w-full items-center rounded px-2 py-1.5 text-xs hover:bg-accent/50",
+                          locale === lang && "bg-accent"
+                        )}
+                        onClick={() => setLocale(lang)}
+                      >
+                        {t(`layout.language.${lang}`)}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
                 <Button
                   type="button"
                   variant="ghost"
@@ -375,7 +397,7 @@ export function Layout() {
                   className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors text-foreground/80 hover:bg-accent/50 hover:text-foreground flex-1 min-w-0"
                 >
                   <BookOpen className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Documentation</span>
+                  <span className="truncate">{t("layout.documentation")}</span>
                 </a>
                 {health?.version && (
                   <Tooltip>
@@ -397,14 +419,42 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      aria-label={t("layout.switchLanguage")}
+                      title={t("layout.switchLanguage")}
+                    >
+                      <Languages className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-36 p-1" align="start">
+                    {languageOptions.map((lang) => (
+                      <button
+                        key={lang}
+                        className={cn(
+                          "flex w-full items-center rounded px-2 py-1.5 text-xs hover:bg-accent/50",
+                          locale === lang && "bg-accent"
+                        )}
+                        onClick={() => setLocale(lang)}
+                      >
+                        {t(`layout.language.${lang}`)}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
                   className="text-muted-foreground shrink-0"
                   onClick={toggleTheme}
-                  aria-label={`Switch to ${nextTheme} mode`}
-                  title={`Switch to ${nextTheme} mode`}
+                  aria-label={switchThemeLabel}
+                  title={switchThemeLabel}
                 >
                   {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
