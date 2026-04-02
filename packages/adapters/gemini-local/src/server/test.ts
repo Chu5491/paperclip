@@ -184,7 +184,7 @@ export async function testEnvironment(
                 "--output-format",
                 "stream-json",
                 "--prompt",
-                "Respond with hello.",
+                "you must Respond only 'hello'",
             ];
             if (model && model !== DEFAULT_GEMINI_LOCAL_MODEL)
                 args.push("--model", model);
