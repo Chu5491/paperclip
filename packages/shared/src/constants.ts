@@ -22,18 +22,18 @@ export const AGENT_STATUSES = [
 export type AgentStatus = (typeof AGENT_STATUSES)[number];
 
 export const AGENT_ADAPTER_TYPES = [
-    "process",
-    "http",
-    "claude_local",
-    "codex_local",
-    "gemini_local",
-    "opencode_local",
-    "pi_local",
-    "cursor",
-    "openclaw_gateway",
-    "hermes_local",
+  "process",
+  "http",
+  "claude_local",
+  "codex_local",
+  "gemini_local",
+  "opencode_local",
+  "pi_local",
+  "cursor",
+  "openclaw_gateway",
+  "hermes_local",
 ] as const;
-export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number];
+export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number] | (string & {});
 
 export const AGENT_ROLES = [
     "ceo",
@@ -180,6 +180,9 @@ export type RoutineTriggerKind = (typeof ROUTINE_TRIGGER_KINDS)[number];
 export const ROUTINE_TRIGGER_SIGNING_MODES = ["bearer", "hmac_sha256"] as const;
 export type RoutineTriggerSigningMode =
     (typeof ROUTINE_TRIGGER_SIGNING_MODES)[number];
+
+export const ROUTINE_VARIABLE_TYPES = ["text", "textarea", "number", "boolean", "select"] as const;
+export type RoutineVariableType = (typeof ROUTINE_VARIABLE_TYPES)[number];
 
 export const ROUTINE_RUN_STATUSES = [
     "received",
@@ -460,53 +463,54 @@ export type PluginCategory = (typeof PLUGIN_CATEGORIES)[number];
  * @see PLUGIN_SPEC.md §15 — Capability Model
  */
 export const PLUGIN_CAPABILITIES = [
-    // Data Read
-    "companies.read",
-    "projects.read",
-    "project.workspaces.read",
-    "issues.read",
-    "issue.comments.read",
-    "issue.documents.read",
-    "agents.read",
-    "goals.read",
-    "goals.create",
-    "goals.update",
-    "activity.read",
-    "costs.read",
-    // Data Write
-    "issues.create",
-    "issues.update",
-    "issue.comments.create",
-    "issue.documents.write",
-    "agents.pause",
-    "agents.resume",
-    "agents.invoke",
-    "agent.sessions.create",
-    "agent.sessions.list",
-    "agent.sessions.send",
-    "agent.sessions.close",
-    "activity.log.write",
-    "metrics.write",
-    // Plugin State
-    "plugin.state.read",
-    "plugin.state.write",
-    // Runtime / Integration
-    "events.subscribe",
-    "events.emit",
-    "jobs.schedule",
-    "webhooks.receive",
-    "http.outbound",
-    "secrets.read-ref",
-    // Agent Tools
-    "agent.tools.register",
-    // UI
-    "instance.settings.register",
-    "ui.sidebar.register",
-    "ui.page.register",
-    "ui.detailTab.register",
-    "ui.dashboardWidget.register",
-    "ui.commentAnnotation.register",
-    "ui.action.register",
+  // Data Read
+  "companies.read",
+  "projects.read",
+  "project.workspaces.read",
+  "issues.read",
+  "issue.comments.read",
+  "issue.documents.read",
+  "agents.read",
+  "goals.read",
+  "goals.create",
+  "goals.update",
+  "activity.read",
+  "costs.read",
+  // Data Write
+  "issues.create",
+  "issues.update",
+  "issue.comments.create",
+  "issue.documents.write",
+  "agents.pause",
+  "agents.resume",
+  "agents.invoke",
+  "agent.sessions.create",
+  "agent.sessions.list",
+  "agent.sessions.send",
+  "agent.sessions.close",
+  "activity.log.write",
+  "metrics.write",
+  "telemetry.track",
+  // Plugin State
+  "plugin.state.read",
+  "plugin.state.write",
+  // Runtime / Integration
+  "events.subscribe",
+  "events.emit",
+  "jobs.schedule",
+  "webhooks.receive",
+  "http.outbound",
+  "secrets.read-ref",
+  // Agent Tools
+  "agent.tools.register",
+  // UI
+  "instance.settings.register",
+  "ui.sidebar.register",
+  "ui.page.register",
+  "ui.detailTab.register",
+  "ui.dashboardWidget.register",
+  "ui.commentAnnotation.register",
+  "ui.action.register",
 ] as const;
 export type PluginCapability = (typeof PLUGIN_CAPABILITIES)[number];
 
