@@ -101,6 +101,7 @@ import {
 } from "./execution-workspace-policy.js";
 import { instanceSettingsService } from "./instance-settings.js";
 import {
+  RECOVERY_ORIGIN_KINDS,
   RUN_LIVENESS_CONTINUATION_REASON,
   buildRunLivenessContinuationIdempotencyKey,
   decideRunLivenessContinuation,
@@ -109,6 +110,7 @@ import {
 } from "./recovery/index.js";
 import { isAutomaticRecoverySuppressedByPauseHold } from "./recovery/pause-hold-guard.js";
 import { recoveryService } from "./recovery/service.js";
+import { productivityReviewService } from "./productivity-review.js";
 import { withAgentStartLock } from "./agent-start-lock.js";
 import { redactCurrentUserText, redactCurrentUserValue } from "../log-redaction.js";
 import {
@@ -133,6 +135,7 @@ const MAX_RUN_EVENT_PAYLOAD_ARRAY_ITEMS = 50;
 const MAX_RUN_EVENT_PAYLOAD_OBJECT_KEYS = 100;
 const MAX_RUN_EVENT_PAYLOAD_DEPTH = 6;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT = AGENT_DEFAULT_MAX_CONCURRENT_RUNS;
+const HEARTBEAT_MAX_CONCURRENT_RUNS_MIN = 1;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_MAX = 10;
 const LIVENESS_BOOKKEEPING_ACTIVITY_ACTIONS = [
   "environment.lease_acquired",
@@ -848,7 +851,7 @@ export function compactRunLogChunk(chunk: string, maxChars = MAX_PERSISTED_LOG_C
 function normalizeMaxConcurrentRuns(value: unknown) {
   const parsed = Math.floor(asNumber(value, HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT));
   if (!Number.isFinite(parsed)) return HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT;
-  return Math.max(HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT, Math.min(HEARTBEAT_MAX_CONCURRENT_RUNS_MAX, parsed));
+  return Math.max(HEARTBEAT_MAX_CONCURRENT_RUNS_MIN, Math.min(HEARTBEAT_MAX_CONCURRENT_RUNS_MAX, parsed));
 }
 
 interface WakeupOptions {
@@ -2002,6 +2005,7 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
   };
   const budgets = budgetService(db, budgetHooks);
   const recovery = recoveryService(db, { enqueueWakeup });
+  const productivityReviews = productivityReviewService(db, { enqueueWakeup });
   let unsafeTextProjectionPromise: Promise<boolean> | null = null;
 
   async function hasUnsafeTextProjectionDatabase() {
@@ -2805,6 +2809,29 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
           projectId: issue.projectId,
         })
         : null;
+    if (issue) {
+      const productivityHold = await productivityReviews.isProductivityReviewContinuationHoldActive({
+        companyId: issue.companyId,
+        issueId: issue.id,
+        agentId: run.agentId,
+      });
+      if (productivityHold.held) {
+        await setRunStatus(run.id, run.status, {
+          livenessReason:
+            `${run.livenessReason ?? "Run ended without concrete progress"}; continuation held by productivity review ${productivityHold.reviewIdentifier ?? productivityHold.reviewIssueId}`,
+        });
+        await productivityReviews.recordContinuationHold({
+          companyId: issue.companyId,
+          issueId: issue.id,
+          runId: run.id,
+          agentId: run.agentId,
+          reviewIssueId: productivityHold.reviewIssueId,
+          trigger: productivityHold.trigger,
+          reason: productivityHold.reason,
+        });
+        return;
+      }
+    }
 
     const nextAttempt = readContinuationAttempt(run.continuationAttempt) + 1;
     const idempotencyKey = issue
@@ -4492,6 +4519,10 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
     return recovery.scanSilentActiveRuns(opts);
   }
 
+  async function reconcileProductivityReviews(opts?: { now?: Date; companyId?: string }) {
+    return productivityReviews.reconcileProductivityReviews(opts);
+  }
+
   async function buildRunOutputSilence(
     run: Pick<
       typeof heartbeatRuns.$inferSelect,
@@ -4502,7 +4533,15 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
     return recovery.buildRunOutputSilence(run, now);
   }
 
-  async function reconcileIssueGraphLiveness(opts?: { runId?: string | null }) {
+  async function buildIssueGraphLivenessAutoRecoveryPreview(opts?: { lookbackHours?: number; now?: Date }) {
+    return recovery.buildIssueGraphLivenessAutoRecoveryPreview(opts);
+  }
+
+  async function reconcileIssueGraphLiveness(opts?: {
+    runId?: string | null;
+    force?: boolean;
+    lookbackHours?: number;
+  }) {
     return recovery.reconcileIssueGraphLiveness(opts);
   }
 
@@ -6185,6 +6224,7 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       }
 
       const shouldBlockImmediately =
+        issue.originKind === RECOVERY_ORIGIN_KINDS.strandedIssueRecovery ||
         !recoveryAgentInvokable ||
         !recoveryAgent ||
         didAutomaticRecoveryFail(run, issue.status === "todo" ? "assignment_recovery" : "issue_continuation_needed");
@@ -7477,9 +7517,13 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
 
     reconcileStrandedAssignedIssues,
 
+    buildIssueGraphLivenessAutoRecoveryPreview,
+
     reconcileIssueGraphLiveness,
 
     scanSilentActiveRuns,
+
+    reconcileProductivityReviews,
 
     buildRunOutputSilence,
 
