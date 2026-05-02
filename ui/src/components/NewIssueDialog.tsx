@@ -1368,7 +1368,7 @@ export function NewIssueDialog() {
                   <button
                     type="button"
                     className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-accent/50 transition-colors"
-                    title="Add reviewer or approver"
+                    title={t("issueDialog.addReviewerOrApprover")}
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
@@ -1386,7 +1386,7 @@ export function NewIssueDialog() {
                     }}
                   >
                     <Eye className="h-3 w-3" />
-                    Reviewer
+                    {t("issueDialog.reviewer")}
                   </button>
                   <button
                     className={cn(
@@ -1400,7 +1400,7 @@ export function NewIssueDialog() {
                     }}
                   >
                     <ShieldCheck className="h-3 w-3" />
-                    Approver
+                    {t("issueDialog.approver")}
                   </button>
                 </PopoverContent>
               </Popover>
@@ -1415,7 +1415,7 @@ export function NewIssueDialog() {
                 value={reviewerValue}
                 options={assigneeOptions}
                 recentOptionIds={recentAssigneeOptionIds}
-                placeholder="Reviewer"
+                placeholder={t("issueDialog.reviewer")}
                 disablePortal
                 noneLabel="No reviewer"
                 searchPlaceholder="Search reviewers..."
@@ -1433,7 +1433,7 @@ export function NewIssueDialog() {
                       <span className="truncate">{option.label}</span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Reviewer</span>
+                    <span className="text-muted-foreground">{t("issueDialog.reviewer")}</span>
                   )
                 }
                 renderOption={(option) => {
@@ -1460,7 +1460,7 @@ export function NewIssueDialog() {
                 value={approverValue}
                 options={assigneeOptions}
                 recentOptionIds={recentAssigneeOptionIds}
-                placeholder="Approver"
+                placeholder={t("issueDialog.approver")}
                 disablePortal
                 noneLabel="No approver"
                 searchPlaceholder="Search approvers..."
@@ -1478,7 +1478,7 @@ export function NewIssueDialog() {
                       <span className="truncate">{option.label}</span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Approver</span>
+                    <span className="text-muted-foreground">{t("issueDialog.approver")}</span>
                   )
                 }
                 renderOption={(option) => {
@@ -1503,7 +1503,7 @@ export function NewIssueDialog() {
             <div className="max-w-full rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <ListTree className="h-3.5 w-3.5 shrink-0" />
-                <span className="shrink-0">Sub-issue of</span>
+                <span className="shrink-0">{t("issueDialog.subIssueOf")}</span>
                 <span className="font-medium text-foreground">{parentIssueLabel}</span>
               </div>
               {newIssueDefaults.parentTitle ? (
@@ -1518,7 +1518,7 @@ export function NewIssueDialog() {
           {currentProject && currentProjectSupportsExecutionWorkspace && (
             <div className="px-4 py-3 space-y-2">
             <div className="space-y-1.5">
-              <div className="text-xs font-medium">Execution workspace</div>
+              <div className="text-xs font-medium">{t("issueDialog.executionWorkspace")}</div>
               <div className="text-[11px] text-muted-foreground">
                 Control whether this issue runs in the shared workspace, a new isolated workspace, or an existing one.
               </div>
@@ -1544,7 +1544,7 @@ export function NewIssueDialog() {
                   value={selectedExecutionWorkspaceId}
                   onChange={(e) => setSelectedExecutionWorkspaceId(e.target.value)}
                 >
-                  <option value="">Choose an existing workspace</option>
+                  <option value="">{t("issueDialog.chooseExistingWorkspace")}</option>
                   {deduplicatedReusableWorkspaces.map((workspace) => (
                     <option key={workspace.id} value={workspace.id}>
                       {workspace.name} · {workspace.status} · {workspace.branchName ?? workspace.cwd ?? workspace.id.slice(0, 8)}
@@ -1578,11 +1578,11 @@ export function NewIssueDialog() {
             {assigneeOptionsOpen && (
               <div className="mt-2 rounded-md border border-border p-3 bg-muted/20 space-y-3">
                 <div className="space-y-1.5">
-                  <div className="text-xs text-muted-foreground">Model lane</div>
+                  <div className="text-xs text-muted-foreground">{t("issueDialog.modelLane")}</div>
                   <div
                     className="flex w-full overflow-hidden rounded-md border border-border"
                     role="radiogroup"
-                    aria-label="Model lane"
+                    aria-label={t("issueDialog.modelLane")}
                   >
                     {(["primary", ...(assigneeSupportsCheapLane ? (["cheap"] as const) : ([] as const)), "custom"] as const).map((lane) => (
                       <button
@@ -1615,21 +1615,21 @@ export function NewIssueDialog() {
                     </p>
                   )}
                   {assigneeModelLane === "primary" && (
-                    <p className="text-[11px] text-muted-foreground">Runs on the agent's primary model.</p>
+                    <p className="text-[11px] text-muted-foreground">{t("issueDialog.modelLaneDefaultDesc")}</p>
                   )}
                   {assigneeModelLane === "custom" && (
-                    <p className="text-[11px] text-muted-foreground">Override the model and effort for this issue only.</p>
+                    <p className="text-[11px] text-muted-foreground">{t("issueDialog.modelLaneOverrideDesc")}</p>
                   )}
                 </div>
                 {assigneeModelLane === "custom" && (
                   <div className="space-y-1.5">
-                    <div className="text-xs text-muted-foreground">Model</div>
+                    <div className="text-xs text-muted-foreground">{t("issueDialog.model")}</div>
                     <InlineEntitySelector
                       value={assigneeModelOverride}
                       options={modelOverrideOptions}
-                      placeholder="Default model"
+                      placeholder={t("issueDialog.defaultModel")}
                       disablePortal
-                      noneLabel="Default model"
+                      noneLabel={t("issueDialog.defaultModel")}
                       searchPlaceholder="Search models..."
                       emptyMessage="No models found."
                       onChange={setAssigneeModelOverride}
@@ -1638,7 +1638,7 @@ export function NewIssueDialog() {
                 )}
                 {assigneeModelLane === "custom" && (
                   <div className="space-y-1.5">
-                    <div className="text-xs text-muted-foreground">Thinking effort</div>
+                    <div className="text-xs text-muted-foreground">{t("issueDialog.thinkingEffort")}</div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {thinkingEffortOptions.map((option) => (
                         <button
@@ -1657,7 +1657,7 @@ export function NewIssueDialog() {
                 )}
                 {assigneeAdapterType === "claude_local" && assigneeModelLane === "custom" && (
                   <div className="flex items-center justify-between rounded-md border border-border px-2 py-1.5">
-                    <div className="text-xs text-muted-foreground">Enable Chrome (--chrome)</div>
+                    <div className="text-xs text-muted-foreground">{t("issueDialog.enableChrome")}</div>
                     <ToggleSwitch
                       checked={assigneeChrome}
                       onCheckedChange={() => setAssigneeChrome((value) => !value)}
@@ -1697,7 +1697,7 @@ export function NewIssueDialog() {
               <div className="mt-4 space-y-3 rounded-lg border border-border/70 p-3">
               {stagedDocuments.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">Documents</div>
+                  <div className="text-xs font-medium text-muted-foreground">{t("issueDialog.documents")}</div>
                   <div className="space-y-2">
                     {stagedDocuments.map((file) => (
                       <div key={file.id} className="flex items-start justify-between gap-3 rounded-md border border-border/70 px-3 py-2">
@@ -1721,7 +1721,7 @@ export function NewIssueDialog() {
                           className="shrink-0 text-muted-foreground"
                           onClick={() => removeStagedFile(file.id)}
                           disabled={createIssue.isPending}
-                          title="Remove document"
+                          title={t("issueDialog.removeDocument")}
                         >
                           <X className="h-3.5 w-3.5" />
                         </Button>
@@ -1733,7 +1733,7 @@ export function NewIssueDialog() {
 
               {stagedAttachments.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">Attachments</div>
+                  <div className="text-xs font-medium text-muted-foreground">{t("issueDialog.attachments")}</div>
                   <div className="space-y-2">
                     {stagedAttachments.map((file) => (
                       <div key={file.id} className="flex items-start justify-between gap-3 rounded-md border border-border/70 px-3 py-2">
@@ -1752,7 +1752,7 @@ export function NewIssueDialog() {
                           className="shrink-0 text-muted-foreground"
                           onClick={() => removeStagedFile(file.id)}
                           disabled={createIssue.isPending}
-                          title="Remove attachment"
+                          title={t("issueDialog.removeAttachment")}
                         >
                           <X className="h-3.5 w-3.5" />
                         </Button>

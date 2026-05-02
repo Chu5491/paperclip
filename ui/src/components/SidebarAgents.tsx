@@ -57,6 +57,7 @@ function SidebarAgentItem({
   runCount: number;
   setSidebarOpen: (open: boolean) => void;
 }) {
+  const { t } = useI18n();
   const routeRef = agentRouteRef(agent);
   const href = activeTab ? `${agentUrl(agent)}/${activeTab}` : agentUrl(agent);
   const editHref = `${agentUrl(agent)}/configuration`;
@@ -91,7 +92,7 @@ function SidebarAgentItem({
         {(agent.pauseReason === "budget" || runCount > 0) && (
           <span className="ml-auto flex items-center gap-1.5 shrink-0">
             {agent.pauseReason === "budget" ? (
-              <BudgetSidebarMarker title="Agent paused by budget" />
+              <BudgetSidebarMarker title={t("sidebar.agentPausedByBudget")} />
             ) : null}
             {runCount > 0 ? (
               <span className="relative flex h-2 w-2">
@@ -133,7 +134,7 @@ function SidebarAgentItem({
               }}
             >
               <Pencil className="size-4" />
-              <span>Edit agent</span>
+              <span>{t("sidebar.editAgent")}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />

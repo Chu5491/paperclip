@@ -151,7 +151,7 @@ export function SidebarAccountMenu({
           <button
             type="button"
             className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-foreground/80 transition-colors hover:bg-accent/50 hover:text-foreground"
-            aria-label="Open account menu"
+            aria-label={t("sidebar.openAccountMenu")}
           >
             <Avatar size="sm">
               {session?.user.image ? <AvatarImage src={session.user.image} alt={displayName} /> : null}
@@ -191,28 +191,28 @@ export function SidebarAccountMenu({
 
             <div className="mt-4 space-y-1">
               <MenuAction
-                label="View profile"
+                label={t("sidebar.viewProfile")}
                 description="Open your activity, task, and usage ledger."
                 icon={UserRound}
                 href={profileHref}
                 onClick={closeNavigationChrome}
               />
               <MenuAction
-                label="Edit profile"
+                label={t("sidebar.editProfile")}
                 description="Update your display name and avatar."
                 icon={UserRoundPen}
                 href={PROFILE_SETTINGS_PATH}
                 onClick={closeNavigationChrome}
               />
               <MenuAction
-                label="Instance settings"
+                label={t("sidebar.instanceSettings")}
                 description="Jump back to the last settings page you opened."
                 icon={Settings}
                 href={instanceSettingsTarget}
                 onClick={closeNavigationChrome}
               />
               <MenuAction
-                label="Documentation"
+                label={t("layout.documentation")}
                 description="Open Paperclip docs in a new tab."
                 icon={BookOpen}
                 href={DOCS_URL}

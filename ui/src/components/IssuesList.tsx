@@ -444,6 +444,7 @@ function SubIssueProgressSummaryStrip({
   summary: SubIssueProgressSummary;
   issueLinkState?: unknown;
 }) {
+  const { t } = useI18n();
   const target = summary.target;
   const targetIssue = target?.issue ?? null;
   const targetPathId = targetIssue?.identifier ?? targetIssue?.id ?? "";
@@ -469,7 +470,7 @@ function SubIssueProgressSummaryStrip({
           </div>
           <div
             role="progressbar"
-            aria-label="Sub-issues completion progress"
+            aria-label={t("issuesList.subIssuesProgress")}
             aria-valuemin={0}
             aria-valuenow={summary.doneCount}
             aria-valuemax={summary.totalCount}
@@ -506,11 +507,11 @@ function SubIssueProgressSummaryStrip({
               </Link>
             </>
           ) : summary.totalCount === 0 ? (
-            <div className="text-sm font-medium text-foreground">No active sub-issues</div>
+            <div className="text-sm font-medium text-foreground">{t("issuesList.noActiveSubIssues")}</div>
           ) : summary.doneCount === summary.totalCount ? (
-            <div className="text-sm font-medium text-foreground">All sub-issues done</div>
+            <div className="text-sm font-medium text-foreground">{t("issuesList.allSubIssuesDone")}</div>
           ) : (
-            <div className="text-sm font-medium text-foreground">No actionable sub-issues</div>
+            <div className="text-sm font-medium text-foreground">{t("issuesList.noActionableSubIssues")}</div>
           )}
         </div>
       </div>
@@ -1202,14 +1203,14 @@ export function IssuesList({
             <button
               className={`p-1.5 transition-colors ${viewState.viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "list" })}
-              title="List view"
+              title={t("issuesList.listView")}
             >
               <List className="h-3.5 w-3.5" />
             </button>
             <button
               className={`p-1.5 transition-colors ${viewState.viewMode === "board" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "board" })}
-              title="Board view"
+              title={t("issuesList.boardView")}
             >
               <Columns3 className="h-3.5 w-3.5" />
             </button>
@@ -1233,7 +1234,7 @@ export function IssuesList({
             visibleColumnSet={visibleIssueColumnSet}
             onToggleColumn={toggleIssueColumn}
             onResetColumns={() => setIssueColumns(DEFAULT_INBOX_ISSUE_COLUMNS)}
-            title="Choose which issue columns stay visible"
+            title={t("issuesList.columnsVisibility")}
             iconOnly
           />
 
@@ -1255,7 +1256,7 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Sort">
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title={t("issuesList.sort")}>
                   <ArrowUpDown className="h-3.5 w-3.5" />
                 </Button>
               </PopoverTrigger>
@@ -1299,7 +1300,7 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Group">
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" title={t("issuesList.group")}>
                   <Layers className="h-3.5 w-3.5" />
                 </Button>
               </PopoverTrigger>
@@ -1519,11 +1520,11 @@ export function IssuesList({
                               issueBadge === "Paused" ? (
                                 <span
                                   className={cn("ml-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium", statusBadge.paused)}
-                                  aria-label="Paused"
-                                  title="Paused"
+                                  aria-label={t("issuesList.paused")}
+                                  title={t("issuesList.paused")}
                                 >
                                   <CircleSlash2 className="h-3 w-3" />
-                                  Paused
+                                  {t("issuesList.paused")}
                                 </span>
                               ) : (
                                 <span className="ml-1.5 inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
